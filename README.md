@@ -1,4 +1,4 @@
-# simpleClientServer
+# basitSunucuistemci
 
 Aşağıdaki adresteki uygulamadaki process kapanmama sorununun çözülmesi ile oluşturulmuş yeni depo
 https://github.com/pricheal/python-client-server/
