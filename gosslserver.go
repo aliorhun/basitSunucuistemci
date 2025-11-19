@@ -5,6 +5,9 @@ import (
     "crypto/tls"
     "net"
     "bufio"
+    "math/rand"
+    "time"
+    "fmt"
 )
 
 func main() {
@@ -48,10 +51,33 @@ func handleConnection(conn net.Conn) {
 
         println(msg)
 
-        n, err := conn.Write([]byte("world\n"))
+        // Random mesaj gönder
+        randomMsg := generateRandomMessage()
+        n, err := conn.Write([]byte(randomMsg + "\n"))
         if err != nil {
             log.Println(n, err)
             return
         }
     }
+}
+
+// Random sayı üretir (0-100 arası)
+func generateRandomNumber() int {
+    rand.Seed(time.Now().UnixNano())
+    return rand.Intn(101)
+}
+
+// Random mesaj üretir
+func generateRandomMessage() string {
+    messages := []string{
+        "Merhaba",
+        "Hello World",
+        "Selam",
+        "Hi there",
+        "Nasılsın",
+    }
+    rand.Seed(time.Now().UnixNano())
+    randomIndex := rand.Intn(len(messages))
+    randomNum := generateRandomNumber()
+    return fmt.Sprintf("%s - Random: %d", messages[randomIndex], randomNum)
 }
