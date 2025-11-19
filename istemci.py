@@ -32,6 +32,8 @@ except:
 receiveThread = threading.Thread(target = receive, args = (sock, True))
 receiveThread.start()
 
+print("elma")
+
 #sunucuya veri gönderme
 while existsignal:
     message = input()
