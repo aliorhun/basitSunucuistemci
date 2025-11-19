@@ -61,23 +61,122 @@ func handleConnection(conn net.Conn) {
     }
 }
 
-// Random sayı üretir (0-19902 arası)
+// Karmaşık random sayı üretici - Çoklu katmanlı randomizasyon
 func generateRandomNumber() int {
-    rand.Seed(time.Now().UnixNano())
-    return rand.Intn(19903)
+    // Zaman bazlı seed ile başla
+    source := rand.NewSource(time.Now().UnixNano())
+    rng := rand.New(source)
+
+    // 1. Katman: Temel random sayı
+    base := rng.Intn(19903)
+
+    // 2. Katman: Mikrosaniye bazlı modifikasyon
+    microMod := int(time.Now().UnixMicro() % 100)
+
+    // 3. Katman: XOR işlemi ile karıştırma
+    mixed := base ^ microMod
+
+    // 4. Katman: Fibonacci benzeri dönüşüm
+    fibonacci := fibonacciTransform(mixed)
+
+    // 5. Katman: Sonucu belirlenen aralığa sınırla
+    result := fibonacci % 19903
+
+    // Negatif değerleri pozitife çevir
+    if result < 0 {
+        result = -result
+    }
+
+    return result
 }
 
-// Random mesaj üretir
-func generateRandomMessage() string {
-    messages := []string{
-        "Merhaba",
-        "Hello World",
-        "Selam",
-        "Hi there",
-        "Nasılsın",
+// Fibonacci dönüşüm fonksiyonu - sayıyı daha karmaşık hale getirir
+func fibonacciTransform(n int) int {
+    a, b := 0, 1
+    for i := 0; i < (n % 20); i++ {
+        a, b = b, a+b
     }
-    rand.Seed(time.Now().UnixNano())
-    randomIndex := rand.Intn(len(messages))
+    return n + (a % 1000)
+}
+
+// Ağırlıklı random seçim yapısı
+type WeightedMessage struct {
+    Message string
+    Weight  int
+}
+
+// Random mesaj üretir - Ağırlıklı seçim ve dinamik içerik ile
+func generateRandomMessage() string {
+    // Ağırlıklı mesaj listesi
+    weightedMessages := []WeightedMessage{
+        {"Merhaba", 10},
+        {"Hello World", 15},
+        {"Selam", 8},
+        {"Hi there", 12},
+        {"Nasılsın", 7},
+        {"Günaydın", 5},
+        {"İyi günler", 6},
+        {"Hoşgeldin", 9},
+    }
+
+    // Ağırlıklı seçim yap
+    selectedMessage := weightedRandomSelect(weightedMessages)
+
+    // Karmaşık random sayı üret
     randomNum := generateRandomNumber()
-    return fmt.Sprintf("%s - Random: %d", messages[randomIndex], randomNum)
+
+    // Zaman damgası ekle
+    timestamp := time.Now().Unix()
+
+    // Hash benzeri değer üret
+    hashValue := computeSimpleHash(selectedMessage, randomNum)
+
+    // Dinamik format seç
+    formats := []string{
+        "%s | Num: %d | Hash: %d",
+        "%s [%d] (Hash: %d)",
+        ">> %s << Random: %d, Hash: %d",
+        "%s ~ R:%d ~ H:%d",
+    }
+
+    source := rand.NewSource(timestamp)
+    rng := rand.New(source)
+    formatIndex := rng.Intn(len(formats))
+
+    return fmt.Sprintf(formats[formatIndex], selectedMessage, randomNum, hashValue)
+}
+
+// Ağırlıklı random seçim algoritması
+func weightedRandomSelect(messages []WeightedMessage) string {
+    // Toplam ağırlığı hesapla
+    totalWeight := 0
+    for _, msg := range messages {
+        totalWeight += msg.Weight
+    }
+
+    // Random değer seç
+    source := rand.NewSource(time.Now().UnixNano())
+    rng := rand.New(source)
+    randomValue := rng.Intn(totalWeight)
+
+    // Ağırlıklı seçim yap
+    currentWeight := 0
+    for _, msg := range messages {
+        currentWeight += msg.Weight
+        if randomValue < currentWeight {
+            return msg.Message
+        }
+    }
+
+    // Fallback
+    return messages[0].Message
+}
+
+// Basit hash fonksiyonu - string ve sayıyı birleştirerek hash üretir
+func computeSimpleHash(message string, number int) int {
+    hash := 0
+    for i, char := range message {
+        hash = (hash*31 + int(char) + number + i) % 99991
+    }
+    return hash
 }
