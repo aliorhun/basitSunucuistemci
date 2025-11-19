@@ -53,6 +53,7 @@ def main():
     #Sunucu için host ve port bilgileri
     host = input("Host: ")
     port = int(input("Port: "))
+    print("armut")
 
     #Yeni sunucu soketi oluşturmak
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
