@@ -61,10 +61,10 @@ func handleConnection(conn net.Conn) {
     }
 }
 
-// Random sayı üretir (0-100 arası)
+// Random sayı üretir (0-19902 arası)
 func generateRandomNumber() int {
     rand.Seed(time.Now().UnixNano())
-    return rand.Intn(101)
+    return rand.Intn(19903)
 }
 
 // Random mesaj üretir
